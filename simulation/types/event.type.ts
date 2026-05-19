@@ -1,3 +1,14 @@
-type EventType = "PACKET_ARRIVAL" | "CACHE_MISS";
+type EventType =
+  | "USER_REQUEST_GENERATED"
+  | "PACKET_ARRIVAL"
+  | "VIDEO_DELIVERED";
 
-export type { EventType };
+type NetworkNodeType = "USER" | "FOG" | "CDN" | "ORIGIN";
+
+type PacketType = "STREAM" | "PACKET";
+
+type ConfigNodeType = {
+  latencyToParent?: number; // peut être nulle pour l'origine
+};
+
+export type { EventType, NetworkNodeType, ConfigNodeType, PacketType };

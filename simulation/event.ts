@@ -1,4 +1,4 @@
-import { EventType } from "./types/event.type";
+import { EventType } from "./types/event.type.js";
 
 // Définition d'un noeud
 class EventTreeNode {
@@ -6,9 +6,10 @@ class EventTreeNode {
   data: any;
   public time: number;
 
-  constructor(time: number, type: EventType) {
+  constructor(time: number, type: EventType, data: any) {
     this.time = time;
     this.type = type;
+    this.data = data;
   }
 }
 
@@ -97,3 +98,5 @@ class PriorityQueue {
     return elementRemove;
   }
 }
+
+export { PriorityQueue, EventTreeNode };
