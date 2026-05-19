@@ -38,4 +38,18 @@ class VideoChunk {
   }
 }
 
-export { VideoAsset, VideoChunk };
+class Catalog {
+  catalog: VideoAsset[] = [];
+
+  constructor() {}
+
+  addCatalog(asset: VideoAsset) {
+    this.catalog.push(asset);
+  }
+
+  getCatalogById(idAssets: number) {
+    return this.catalog.find((el) => el.id === idAssets);
+  }
+}
+
+export { VideoAsset, VideoChunk, Catalog };

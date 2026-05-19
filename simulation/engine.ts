@@ -1,9 +1,11 @@
 import { PriorityQueue, EventTreeNode } from "./event.js";
+import { Catalog } from "./graph/video.js";
 import { EventType } from "./types/event.type.js";
 
 class SimulationEngine {
   currentTime: number = 0;
   private queue = new PriorityQueue();
+  catalog: Catalog = new Catalog();
 
   // A ajouter
   stats: any;
