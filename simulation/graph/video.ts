@@ -1,24 +1,39 @@
+const CHUNK_MAX_SIZE = 2 * 10 ** 6;
+
 class VideoAsset {
   id: number;
+  title: string;
   size: number; // taille en octet
-  packets: VideoChunk[] = [];
+  chunks: VideoChunk[] = [];
 
-  constructor(id: number, size: number) {
+  constructor(id: number, title: string, size: number) {
     this.id = id;
     this.size = size;
+    this.title = title;
   }
 
   splitFile() {
-    // il faut découper le fichier en mini packet pour les envoyer
+    let tempSize = this.size;
+    let index = 0;
+    while (tempSize > 0) {
+      // creation du chunk
+      let chunkSize = tempSize - CHUNK_MAX_SIZE > 0 ? CHUNK_MAX_SIZE : tempSize;
+      const newChunk = new VideoChunk(index, chunkSize);
+      this.chunks.push(newChunk);
+
+      // changement des valeurs
+      tempSize -= chunkSize;
+      index++;
+    }
   }
 }
 
 class VideoChunk {
-  idPacket: number;
+  idChunk: number;
   size: number;
 
   constructor(id: number, size: number) {
-    this.idPacket = id;
+    this.idChunk = id;
     this.size = size;
   }
 }

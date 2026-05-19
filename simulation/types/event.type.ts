@@ -1,14 +1,14 @@
-type EventType =
+export type EventType =
   | "USER_REQUEST_GENERATED"
   | "PACKET_ARRIVAL"
   | "VIDEO_DELIVERED";
 
-type NetworkNodeType = "USER" | "FOG" | "CDN" | "ORIGIN";
+export type NetworkNodeType = "USER" | "FOG" | "CDN" | "ORIGIN";
 
-type PacketType = "STREAM" | "PACKET";
+export type PacketType = "STREAM" | "PACKET";
 
-type ConfigNodeType = {
+export type ConfigNodeType = {
   latencyToParent?: number; // peut être nulle pour l'origine
 };
 
-export type { EventType, NetworkNodeType, ConfigNodeType, PacketType };
+export type StatusAsset = "START" | "STREAM" | "END";
