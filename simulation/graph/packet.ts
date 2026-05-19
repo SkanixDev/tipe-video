@@ -1,5 +1,5 @@
-import { StatusAsset } from "../types/event.type.js";
-import { UserNode } from "./graph.js";
+import { ChunkStatus, StatusAsset } from "../types/event.type.js";
+import { NetworkNode, UserNode } from "./graph.js";
 import { VideoAsset, VideoChunk } from "./video.js";
 
 class Stream {
@@ -22,17 +22,17 @@ class Chunk {
   chunkIndex: number;
 
   from: UserNode;
-  status: "UP" | "DOWN";
+  status: ChunkStatus;
   size: number; // nombre d'octets
   videoId: number;
-  history: string[] = [];
+  history: NetworkNode[] = [];
 
   constructor(
     id: number,
     size: number,
     videoId: number,
     from: UserNode,
-    status?: "UP" | "DOWN",
+    status?: ChunkStatus,
   ) {
     this.chunkIndex = id;
     this.size = size;
@@ -40,4 +40,10 @@ class Chunk {
     this.videoId = videoId;
     this.from = from;
   }
+
+  setStatus(status: ChunkStatus) {
+    this.status = status;
+  }
 }
+
+export { Chunk, Stream };

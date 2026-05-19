@@ -1,8 +1,10 @@
+import { SimulationEngine } from "../engine.js";
 import {
   ConfigNodeType,
   NetworkNodeType,
   PacketType,
 } from "../types/event.type.js";
+import { Chunk } from "./packet.js";
 
 class NetworkNode {
   id: string;
@@ -26,20 +28,39 @@ class NetworkNode {
 }
 
 class UserNode extends NetworkNode {
-  handlePacket() {
+  handleChunk() {
     return "Noeud gérer";
   }
 }
 class CacheNode extends NetworkNode {
-  handlePacket() {
+  handleChunk() {
     return "Noeud gérer";
   }
 }
 
 class OriginNode extends NetworkNode {
-  handlePacket() {
-    return "Noeud gérer";
+  handleChunk(chunk: Chunk, engine: SimulationEngine) {
+    if (chunk.status === "DOWN")
+      throw new Error("Une vidéo à l'origine ne peut pas etre DOWN");
+    // retour de requete
+    chunk.setStatus("DOWN");
+
+    // recherche de la video
+    const video = engine.catalog.getCatalogById(chunk.videoId);
+
+    if (!video) throw new Error("Vidéo Introuvable"); // si id fausse
+
+    const chunkVideo = video?.chunks[chunk.chunkIndex];
+
+    chunk.size = chunkVideo?.size;
+
+    const nextGoal = chunk.history.pop();
+
+    engine.scheduleEvent(nextGoal?.config.latencyToParent!, "PACKET_ARRIVAL", {
+      targetNode: nextGoal,
+      packet: chunk,
+    });
   }
 }
 
-export { UserNode, CacheNode, OriginNode };
+export { UserNode, CacheNode, OriginNode, NetworkNode };

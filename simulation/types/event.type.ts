@@ -11,4 +11,6 @@ export type ConfigNodeType = {
   latencyToParent?: number; // peut être nulle pour l'origine
 };
 
+export type ChunkStatus = "UP" | "DOWN";
+
 export type StatusAsset = "START" | "STREAM" | "END";
