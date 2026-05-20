@@ -10,6 +10,7 @@ class Stream {
   assetVideo: VideoAsset;
   status: StatusAsset = "START";
   chunks: Chunk[] = [];
+  nextChunkIndex: number = 0;
 
   constructor(id: string, assetVideoId: VideoAsset, from: UserNode) {
     this.id = id;

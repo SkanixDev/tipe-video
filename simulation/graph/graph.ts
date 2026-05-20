@@ -4,7 +4,7 @@ import {
   NetworkNodeType,
   PacketType,
 } from "../types/event.type.js";
-import { Chunk } from "./packet.js";
+import { Chunk, Stream } from "./packet.js";
 import { VideoChunk } from "./video.js";
 
 class NetworkNode {
@@ -29,10 +29,45 @@ class NetworkNode {
 }
 
 class UserNode extends NetworkNode {
-  handleChunk() {
-    return "Noeud gérer";
+  activeStream: Stream[] = [];
+
+  handleChunk(chunk: Chunk, engine: SimulationEngine) {
+    if (chunk.status !== "DOWN")
+      throw Error("Il ne peut pas gérer les émissions ici");
+
+    const stream = this.activeStream.find(
+      (el) => el.assetVideo.id === chunk.videoId,
+    );
+
+    if (!stream)
+      throw new Error(
+        "Stream impossible à trouver, video non demandé par l'utilisateur.",
+      );
+
+    stream.chunks.push(chunk);
+    const videoCatalog = engine.catalog.getCatalogById(stream.assetVideo.id);
+    if (!videoCatalog) throw new Error("Vidéo inexistante");
+    if (stream.chunks.length >= videoCatalog.chunks.length) {
+      stream.status = "END";
+    } else {
+      stream.nextChunkIndex++;
+
+      // Demande de la suite des chunk
+      const newChunk = new Chunk(
+        stream.nextChunkIndex,
+        0,
+        stream.assetVideo.id,
+        chunk.from,
+      );
+
+      engine.scheduleEvent(this.config.latencyToParent!, "PACKET_ARRIVAL", {
+        targetNode: this.parent!,
+        packet: newChunk,
+      });
+    }
   }
 }
+
 class CacheNode extends NetworkNode {
   capacity: number;
   usedCapacity: number = 0;
