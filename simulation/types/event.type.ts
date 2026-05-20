@@ -12,6 +12,7 @@ export type PacketType = "STREAM" | "PACKET";
 
 export type ConfigNodeType = {
   latencyToParent?: number; // peut être nulle pour l'origine
+  bandwidthToParent?: number;
 };
 
 export type ChunkStatus = "UP" | "DOWN";

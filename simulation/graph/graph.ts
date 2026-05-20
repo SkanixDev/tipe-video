@@ -26,6 +26,16 @@ class NetworkNode {
     this.parent = parent;
     this.config = config;
   }
+
+  calculateTransmissionDelay(chunkSize: number): number {
+    const latency = this.config.latencyToParent || 0;
+    const bandwith = this.config.bandwidthToParent;
+
+    if (!bandwith) return latency;
+
+    // Latence + (Taille / Débit)
+    return latency + chunkSize / bandwith;
+  }
 }
 
 class UserNode extends NetworkNode {
@@ -62,7 +72,9 @@ class UserNode extends NetworkNode {
       );
       newChunk.history.push(this);
 
-      engine.scheduleEvent(this.config.latencyToParent!, "PACKET_ARRIVAL", {
+      const delay = this.calculateTransmissionDelay(chunk.size);
+
+      engine.scheduleEvent(delay, "PACKET_ARRIVAL", {
         targetNode: this.parent!,
         packet: newChunk,
       });
@@ -94,7 +106,9 @@ class CacheNode extends NetworkNode {
       if (!video) {
         // Cache miss
         chunk.history.push(this); // ajout à l'historique
-        engine.scheduleEvent(this.config.latencyToParent!, "PACKET_ARRIVAL", {
+        const delay = this.calculateTransmissionDelay(chunk.size);
+
+        engine.scheduleEvent(delay, "PACKET_ARRIVAL", {
           targetNode: this.parent!,
           packet: chunk,
         });
@@ -109,15 +123,12 @@ class CacheNode extends NetworkNode {
           const nextGoal = chunk.history.pop();
 
           if (!nextGoal) throw new Error("Il n'y a pas d'historique, erreur");
+          const delay = nextGoal.calculateTransmissionDelay(chunk.size);
 
-          engine.scheduleEvent(
-            nextGoal?.config.latencyToParent!,
-            "PACKET_ARRIVAL",
-            {
-              targetNode: nextGoal,
-              packet: chunk,
-            },
-          );
+          engine.scheduleEvent(delay, "PACKET_ARRIVAL", {
+            targetNode: nextGoal,
+            packet: chunk,
+          });
         } else throw new Error("Video Introuvable, erreur");
       }
     } else {
@@ -138,15 +149,12 @@ class CacheNode extends NetworkNode {
       const nextGoal = chunk.history.pop();
 
       if (!nextGoal) throw new Error("Il n'y a pas d'historique, erreur");
+      const delay = nextGoal.calculateTransmissionDelay(chunk.size);
 
-      engine.scheduleEvent(
-        nextGoal?.config.latencyToParent!,
-        "PACKET_ARRIVAL",
-        {
-          targetNode: nextGoal,
-          packet: chunk,
-        },
-      );
+      engine.scheduleEvent(delay, "PACKET_ARRIVAL", {
+        targetNode: nextGoal,
+        packet: chunk,
+      });
     }
   }
 }
@@ -170,8 +178,9 @@ class OriginNode extends NetworkNode {
     const nextGoal = chunk.history.pop();
 
     if (!nextGoal) throw new Error("Il n'y a pas d'historique, erreur");
+    const delay = nextGoal.calculateTransmissionDelay(chunk.size);
 
-    engine.scheduleEvent(nextGoal?.config.latencyToParent!, "PACKET_ARRIVAL", {
+    engine.scheduleEvent(delay, "PACKET_ARRIVAL", {
       targetNode: nextGoal,
       packet: chunk,
     });

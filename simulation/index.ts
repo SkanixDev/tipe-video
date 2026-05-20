@@ -7,7 +7,7 @@ import { Catalog, VideoAsset } from "./graph/video.js";
 
 const catalogue = new Catalog();
 
-const movie1 = new VideoAsset(1, "Tron l'héritage", 4_139_343_321);
+const movie1 = new VideoAsset(1, "Tron l'héritage", 350); // 4_139_343_321
 const movie2 = new VideoAsset(2, "Tron Ares", 3_170_153_452);
 
 catalogue.addCatalog(movie1);
@@ -20,7 +20,7 @@ const cdn1 = new CacheNode(
   "CDN_1",
   "CDN",
   10_000_000_000,
-  { latencyToParent: 50 },
+  { latencyToParent: 50, bandwidthToParent: 125_000 },
   originServer,
 );
 
@@ -28,13 +28,19 @@ const fog1 = new CacheNode(
   "FOG_1",
   "FOG",
   1_000_000_000,
-  { latencyToParent: 15 },
+  { latencyToParent: 15, bandwidthToParent: 12_500 },
   cdn1,
 );
 
 // Utilisateur
-const user1 = new UserNode("USER_1", "USER", fog1, { latencyToParent: 10 });
-const user2 = new UserNode("USER_2", "USER", fog1, { latencyToParent: 10 });
+const user1 = new UserNode("USER_1", "USER", fog1, {
+  latencyToParent: 10,
+  bandwidthToParent: 2500,
+});
+const user2 = new UserNode("USER_2", "USER", fog1, {
+  latencyToParent: 10,
+  bandwidthToParent: 2500,
+});
 
 // Création de la simulation
 const simulation = new SimulationEngine();
