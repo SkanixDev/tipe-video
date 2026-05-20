@@ -18,8 +18,8 @@ class NetworkNode {
   constructor(
     id: string,
     type: NetworkNodeType,
-    config: ConfigNodeType = {},
     parent?: NetworkNode,
+    config: ConfigNodeType = {},
   ) {
     this.id = id;
     this.type = type;
@@ -80,7 +80,7 @@ class CacheNode extends NetworkNode {
     config: ConfigNodeType = {},
     parent?: NetworkNode,
   ) {
-    super(id, type, config, parent);
+    super(id, type, parent, config);
     this.capacity = capacity;
   }
 
@@ -98,7 +98,7 @@ class CacheNode extends NetworkNode {
         });
       } else {
         // Cache hit
-        chunk.status = "DOWN";
+        chunk.setStatus("DOWN");
         chunk.size = video.size;
 
         if (this.storage.delete(keyMap)) {
