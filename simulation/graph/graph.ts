@@ -5,6 +5,7 @@ import {
   PacketType,
 } from "../types/event.type.js";
 import { Chunk } from "./packet.js";
+import { VideoChunk } from "./video.js";
 
 class NetworkNode {
   id: string;
@@ -17,8 +18,8 @@ class NetworkNode {
   constructor(
     id: string,
     type: NetworkNodeType,
-    parent?: NetworkNode,
     config: ConfigNodeType = {},
+    parent?: NetworkNode,
   ) {
     this.id = id;
     this.type = type;
@@ -33,8 +34,83 @@ class UserNode extends NetworkNode {
   }
 }
 class CacheNode extends NetworkNode {
-  handleChunk() {
-    return "Noeud gérer";
+  capacity: number;
+  usedCapacity: number = 0;
+  storage: Map<string, VideoChunk> = new Map(); // videoId_chunkIndex
+
+  constructor(
+    id: string,
+    type: NetworkNodeType,
+    capacity: number,
+    config: ConfigNodeType = {},
+    parent?: NetworkNode,
+  ) {
+    super(id, type, config, parent);
+    this.capacity = capacity;
+  }
+
+  handleChunk(chunk: Chunk, engine: SimulationEngine) {
+    if (chunk.status === "UP") {
+      // Vérifie si la video est dans la Map
+      const keyMap = `${chunk.videoId.toString()}_${chunk.chunkIndex.toString()}`;
+      const video = this.storage.get(keyMap);
+      if (!video) {
+        // Cache miss
+        chunk.history.push(this); // ajout à l'historique
+        engine.scheduleEvent(this.config.latencyToParent!, "PACKET_ARRIVAL", {
+          targetNode: this.parent!,
+          packet: chunk,
+        });
+      } else {
+        // Cache hit
+        chunk.status = "DOWN";
+        chunk.size = video.size;
+
+        if (this.storage.delete(keyMap)) {
+          this.storage.set(keyMap, video);
+
+          const nextGoal = chunk.history.pop();
+
+          if (!nextGoal) throw new Error("Il n'y a pas d'historique, erreur");
+
+          engine.scheduleEvent(
+            nextGoal?.config.latencyToParent!,
+            "PACKET_ARRIVAL",
+            {
+              targetNode: nextGoal,
+              packet: chunk,
+            },
+          );
+        } else throw new Error("Video Introuvable, erreur");
+      }
+    } else {
+      // Ajouter la video au storage
+      if (chunk.size > this.capacity) return; // fichier plus grand que cache on skip
+      while (this.usedCapacity + chunk.size > this.capacity) {
+        const oldestKey = this.storage.keys().next().value;
+        if (!oldestKey) throw new Error("Le stockage est déjà vide");
+        this.usedCapacity -= this.storage.get(oldestKey)?.size!;
+        this.storage.delete(oldestKey);
+      }
+      this.storage.set(
+        `${chunk.videoId.toString()}_${chunk.chunkIndex.toString()}`,
+        engine.catalog.getCatalogById(chunk.videoId)?.chunks[chunk.chunkIndex]!,
+      );
+      this.usedCapacity += chunk.size;
+
+      const nextGoal = chunk.history.pop();
+
+      if (!nextGoal) throw new Error("Il n'y a pas d'historique, erreur");
+
+      engine.scheduleEvent(
+        nextGoal?.config.latencyToParent!,
+        "PACKET_ARRIVAL",
+        {
+          targetNode: nextGoal,
+          packet: chunk,
+        },
+      );
+    }
   }
 }
 
@@ -55,6 +131,8 @@ class OriginNode extends NetworkNode {
     chunk.size = chunkVideo?.size;
 
     const nextGoal = chunk.history.pop();
+
+    if (!nextGoal) throw new Error("Il n'y a pas d'historique, erreur");
 
     engine.scheduleEvent(nextGoal?.config.latencyToParent!, "PACKET_ARRIVAL", {
       targetNode: nextGoal,

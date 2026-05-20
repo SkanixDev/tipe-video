@@ -1,6 +1,6 @@
 import { PriorityQueue, EventTreeNode } from "./event.js";
 import { Catalog } from "./graph/video.js";
-import { EventType } from "./types/event.type.js";
+import { EventType, ScheduleEventDataType } from "./types/event.type.js";
 
 class SimulationEngine {
   currentTime: number = 0;
@@ -13,7 +13,11 @@ class SimulationEngine {
   constructor() {}
 
   // permet d'ajouter un évenement à la liste d'attente
-  scheduleEvent(delay: number, type: EventType, data: any): void {
+  scheduleEvent(
+    delay: number,
+    type: EventType,
+    data: ScheduleEventDataType,
+  ): void {
     const absoluteTime = this.currentTime + delay;
     console.log("absoluteTime:", absoluteTime);
     const newEvent = new EventTreeNode(absoluteTime, type, data);
