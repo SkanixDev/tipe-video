@@ -41,8 +41,22 @@ class SimulationEngine {
   }
 
   processEvent(event: EventTreeNode) {
+    console.log(
+      `[HORLOGE: ${this.currentTime}ms] Traitement de l'événement: ${event.type} pour le nœud: ${event.data.targetNode.id}`,
+    );
+
     switch (event.type) {
-      case "PACKET_ARRIVAL":
+      case "PACKET_ARRIVAL": {
+        // 1. On récupère le nœud cible et le morceau cachés dans l'événement
+        const { targetNode, packet } = event.data;
+
+        // 2. On passe le relais au nœud (il va exécuter sa méthode handleChunk)
+        // On lui passe "this" (le moteur lui-même) pour qu'il puisse replanifier des événements
+        targetNode.handleChunk(packet, this);
+
+        // 3. On arrête la chute ici pour ne pas aller dans default
+        break;
+      }
 
       default:
         break;

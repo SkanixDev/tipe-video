@@ -49,6 +49,7 @@ class UserNode extends NetworkNode {
     if (!videoCatalog) throw new Error("Vidéo inexistante");
     if (stream.chunks.length >= videoCatalog.chunks.length) {
       stream.status = "END";
+      console.log("END ATTEINT");
     } else {
       stream.nextChunkIndex++;
 
@@ -59,6 +60,7 @@ class UserNode extends NetworkNode {
         stream.assetVideo.id,
         chunk.from,
       );
+      newChunk.history.push(this);
 
       engine.scheduleEvent(this.config.latencyToParent!, "PACKET_ARRIVAL", {
         targetNode: this.parent!,
