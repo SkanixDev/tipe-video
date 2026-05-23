@@ -42,7 +42,7 @@ class VideoChunk {
 
 class Catalog {
   catalog: VideoAsset[] = [];
-  zipf_parameter: number = 0.7;
+  zipf_parameter: number = 0.5;
   probability: { id: number; value: number }[] = []; // id , valeur de proba
   normalizationFactor: number = 0;
 
@@ -66,23 +66,28 @@ class Catalog {
         value: value + beforeValue,
       });
       beforeValue += value;
-      console.log("Calcul", value, beforeValue);
     }
-    console.log("norm:", h);
-    console.log("map:", this.probability);
   }
 
   selectRandomValue() {
-    const random = Math.random();
-    let returnedValue = this.probability[0];
+    const random = Math.random(); // Valeur aléatoire sélectionnée
     const length = this.probability.length;
-    // on peut opti avec un tri dichotoique
-    let index = 0;
-    while (random > returnedValue.value && index < length) {
-      index++;
-      returnedValue = this.probability[index];
+
+    let gauche = 0;
+    let droite = length - 1;
+
+    while (gauche != droite) {
+      const milieu = Math.floor((gauche + droite) / 2);
+
+      // choix de la gauche ou droite
+      if (this.probability[milieu].value < random) {
+        gauche = milieu + 1;
+      } else {
+        droite = milieu;
+      }
     }
-    return returnedValue;
+
+    return this.probability[gauche];
   }
 
   private calculateNormalization() {

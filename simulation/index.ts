@@ -7,24 +7,29 @@ import { Catalog, VideoAsset } from "./graph/video.js";
 
 const catalogue = new Catalog();
 
-const movie1 = new VideoAsset(1, "Star wars", 321); // 4_139_343_321
-const movie2 = new VideoAsset(2, "Tron Ares", 3_170_153_452);
-const movie3 = new VideoAsset(3, "Tron Ares", 3_170_153_452);
-const movie4 = new VideoAsset(4, "Tron Ares", 3_170_153_452);
-const movie5 = new VideoAsset(5, "Tron Ares", 3_170_153_452);
+// On crée 5 films avec des IDs uniques de 1 à 5
+const movie1 = new VideoAsset(1, "Star wars", 321);
+const movie2 = new VideoAsset(2, "Tron 1", 3_170_153_452);
+const movie3 = new VideoAsset(3, "Tron 2", 3_170_153_452);
+const movie4 = new VideoAsset(4, "Tron 3", 3_170_153_452);
+const movie5 = new VideoAsset(5, "Tron 4", 3_170_153_452);
 
-catalogue.addCatalog(movie1);
-catalogue.addCatalog(movie2);
-catalogue.addCatalog(movie3);
-catalogue.addCatalog(movie4);
-catalogue.addCatalog(movie5);
+// Ajoutés dans l'ordre strict des rangs de popularité (du plus populaire au moins populaire)
+catalogue.addCatalog(movie1); // Rang 1
+catalogue.addCatalog(movie2); // Rang 2
+catalogue.addCatalog(movie3); // Rang 3
+catalogue.addCatalog(movie4); // Rang 4
+catalogue.addCatalog(movie5); // Rang 5
 
+for (let i = 6; i < 101; i++) {
+  const movie6 = new VideoAsset(i, "Tron 4" + i, 3_170_153_452);
+  catalogue.addCatalog(movie6);
+}
 catalogue.calculateProbability();
 
-const testCount = [0, 0, 0, 0, 0];
+const testCount = new Array(catalogue.catalog.length).fill(0);
 for (let i = 0; i < 1000000; i++) {
   const cal = catalogue.selectRandomValue();
-  // console.log("SELECT RANDOM VALUE", cal);
   testCount[cal?.id! - 1]++;
 }
 console.log(testCount);
