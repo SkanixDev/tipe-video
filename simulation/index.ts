@@ -7,12 +7,27 @@ import { Catalog, VideoAsset } from "./graph/video.js";
 
 const catalogue = new Catalog();
 
-const movie1 = new VideoAsset(1, "Tron l'héritage", 350); // 4_139_343_321
+const movie1 = new VideoAsset(1, "Star wars", 321); // 4_139_343_321
 const movie2 = new VideoAsset(2, "Tron Ares", 3_170_153_452);
+const movie3 = new VideoAsset(3, "Tron Ares", 3_170_153_452);
+const movie4 = new VideoAsset(4, "Tron Ares", 3_170_153_452);
+const movie5 = new VideoAsset(5, "Tron Ares", 3_170_153_452);
 
 catalogue.addCatalog(movie1);
 catalogue.addCatalog(movie2);
+catalogue.addCatalog(movie3);
+catalogue.addCatalog(movie4);
+catalogue.addCatalog(movie5);
 
+catalogue.calculateProbability();
+
+const testCount = [0, 0, 0, 0, 0];
+for (let i = 0; i < 1000000; i++) {
+  const cal = catalogue.selectRandomValue();
+  // console.log("SELECT RANDOM VALUE", cal);
+  testCount[cal?.id! - 1]++;
+}
+console.log(testCount);
 // Création de la ville
 const originServer = new OriginNode("ORIGIN_1", "ORIGIN");
 

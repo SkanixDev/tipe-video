@@ -42,6 +42,9 @@ class VideoChunk {
 
 class Catalog {
   catalog: VideoAsset[] = [];
+  zipf_parameter: number = 0.7;
+  probability: { id: number; value: number }[] = []; // id , valeur de proba
+  normalizationFactor: number = 0;
 
   constructor() {}
 
@@ -51,6 +54,44 @@ class Catalog {
 
   getCatalogById(idAssets: number) {
     return this.catalog.find((el) => el.id === idAssets);
+  }
+
+  calculateProbability() {
+    const h = this.calculateNormalization();
+    let beforeValue = 0;
+    for (let i = 1; i <= this.catalog.length; i++) {
+      const value = 1 / i ** this.zipf_parameter / h;
+      this.probability.push({
+        id: this.catalog[i - 1].id,
+        value: value + beforeValue,
+      });
+      beforeValue += value;
+      console.log("Calcul", value, beforeValue);
+    }
+    console.log("norm:", h);
+    console.log("map:", this.probability);
+  }
+
+  selectRandomValue() {
+    const random = Math.random();
+    let returnedValue = this.probability[0];
+    const length = this.probability.length;
+    // on peut opti avec un tri dichotoique
+    let index = 0;
+    while (random > returnedValue.value && index < length) {
+      index++;
+      returnedValue = this.probability[index];
+    }
+    return returnedValue;
+  }
+
+  private calculateNormalization() {
+    let h = 0;
+    for (let i = 1; i <= this.catalog.length; i++) {
+      // 1/i^s
+      h += 1 / i ** this.zipf_parameter;
+    }
+    return h;
   }
 }
 
