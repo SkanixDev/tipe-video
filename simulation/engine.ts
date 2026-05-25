@@ -125,7 +125,7 @@ class SimulationEngine {
     const u = Math.random();
     // pour éviter un -infinity
     const safeU = u === 0 ? 0.0001 : u;
-    return -Math.log(safeU) / lambda;
+    return -Math.log(safeU) / lambda; // on fait un -log(U)/lambda => U une proba uniforme
   }
 }
 
