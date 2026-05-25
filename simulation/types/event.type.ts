@@ -4,7 +4,8 @@ import { Chunk } from "../graph/packet.js";
 export type EventType =
   | "USER_REQUEST_GENERATED"
   | "PACKET_ARRIVAL"
-  | "VIDEO_DELIVERED";
+  | "VIDEO_DELIVERED"
+  | "USER_ARRIVAL";
 
 export type NetworkNodeType = "USER" | "FOG" | "CDN" | "ORIGIN";
 
@@ -19,7 +20,9 @@ export type ChunkStatus = "UP" | "DOWN";
 
 export type StatusAsset = "START" | "STREAM" | "END";
 
-export type ScheduleEventDataType = {
-  targetNode: NetworkNode;
-  packet: Chunk;
-};
+export type ScheduleEventDataType =
+  | {
+      targetNode: NetworkNode;
+      packet: Chunk;
+    }
+  | { lastIndexUser: number };

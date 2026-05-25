@@ -51,37 +51,22 @@ const fog1 = new CacheNode(
   { latencyToParent: 15, bandwidthToParent: 12_500 },
   cdn1,
 );
-
-// Utilisateur
-const user1 = new UserNode("USER_1", "USER", fog1, {
-  latencyToParent: 10,
-  bandwidthToParent: 2500,
-});
-const user2 = new UserNode("USER_2", "USER", fog1, {
-  latencyToParent: 10,
-  bandwidthToParent: 2500,
-});
-
-// Création de la simulation
-const simulation = new SimulationEngine();
-simulation.catalog = catalogue;
-
-// User 1 veut voir tron 1:
-const stream1 = new Stream("STREAM_USER_1_VID_1", movie1, user1);
-user1.activeStream.push(stream1);
-
-// on init le premier package
-const chunkDMD = new Chunk(0, 0, stream1.assetVideo.id, user1);
-chunkDMD.history.push(user1);
-
-// on programme l'envoie
-simulation.scheduleEvent(
-  user1.parent?.config.latencyToParent!,
-  "PACKET_ARRIVAL",
-  {
-    targetNode: fog1,
-    packet: chunkDMD,
-  },
+const fog2 = new CacheNode(
+  "FOG_2",
+  "FOG",
+  1_000_000_000,
+  { latencyToParent: 15, bandwidthToParent: 12_500 },
+  cdn1,
 );
 
+// Création de la simulation
+const simulation = new SimulationEngine(100);
+simulation.catalog = catalogue;
+simulation.registerFogNode(fog1);
+simulation.registerFogNode(fog2);
+
+// Lancement du premier packet USER ARRIVAL
+simulation.scheduleEvent(0, "USER_ARRIVAL", {
+  lastIndexUser: 0,
+});
 simulation.run();
