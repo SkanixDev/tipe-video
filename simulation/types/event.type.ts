@@ -26,3 +26,8 @@ export type ScheduleEventDataType =
       packet: Chunk;
     }
   | { lastIndexUser: number };
+
+export type StatsSimulationEngine = {
+  cacheHits: number;
+  cacheMiss: number;
+};

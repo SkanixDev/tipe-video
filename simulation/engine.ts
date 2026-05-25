@@ -2,21 +2,31 @@ import { PriorityQueue, EventTreeNode } from "./event.js";
 import { CacheNode, UserNode } from "./graph/graph.js";
 import { Chunk, Stream } from "./graph/packet.js";
 import { Catalog } from "./graph/video.js";
-import { EventType, ScheduleEventDataType } from "./types/event.type.js";
+import {
+  EventType,
+  ScheduleEventDataType,
+  StatsSimulationEngine,
+} from "./types/event.type.js";
 
 class SimulationEngine {
   currentTime: number = 0;
   private queue = new PriorityQueue();
   catalog: Catalog = new Catalog();
-  public fogNodes: CacheNode[] = [];
   private lambdaArrivalUser = 0.01;
+
+  // construction du graph
+  public fogNodes: CacheNode[] = [];
+  public userNode: UserNode[] = [];
 
   // gérer l'arrêt du code
   private iteration;
   private currentIteration = 0;
 
   // A ajouter
-  stats: any;
+  stats: StatsSimulationEngine = {
+    cacheHits: 0,
+    cacheMiss: 0,
+  };
 
   constructor(iteration: number) {
     this.iteration = iteration;
@@ -84,6 +94,9 @@ class SimulationEngine {
       "USER",
       attachedFog,
     );
+    // register de l'utilisateur
+    this.userNode.push(newUser);
+
     // selection du film
     const selectedProbabilityItem = this.catalog.selectRandomValue();
     const selectedMovie = this.catalog.getCatalogById(

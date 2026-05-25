@@ -40,6 +40,7 @@ class NetworkNode {
 
 class UserNode extends NetworkNode {
   activeStream: Stream[] = [];
+  octetDemand: number = 0;
 
   handleChunk(chunk: Chunk, engine: SimulationEngine) {
     if (chunk.status !== "DOWN")
@@ -56,6 +57,10 @@ class UserNode extends NetworkNode {
 
     stream.chunks.push(chunk);
     const videoCatalog = engine.catalog.getCatalogById(stream.assetVideo.id);
+
+    // ajout du nombre d'octet --- STATS
+    chunk.from.octetDemand += chunk.size;
+
     if (!videoCatalog) throw new Error("Vidéo inexistante");
     if (stream.chunks.length >= videoCatalog.chunks.length) {
       stream.status = "END";
@@ -108,6 +113,9 @@ class CacheNode extends NetworkNode {
         chunk.history.push(this); // ajout à l'historique
         const delay = this.calculateTransmissionDelay(chunk.size);
 
+        // ajout de la stats miiss
+        engine.stats.cacheMiss++;
+
         engine.scheduleEvent(delay, "PACKET_ARRIVAL", {
           targetNode: this.parent!,
           packet: chunk,
@@ -116,6 +124,9 @@ class CacheNode extends NetworkNode {
         // Cache hit
         chunk.setStatus("DOWN");
         chunk.size = video.size;
+
+        //ajout de la stats hit
+        engine.stats.cacheHits++;
 
         if (this.storage.delete(keyMap)) {
           this.storage.set(keyMap, video);
@@ -160,6 +171,8 @@ class CacheNode extends NetworkNode {
 }
 
 class OriginNode extends NetworkNode {
+  octetSend: number = 0;
+
   handleChunk(chunk: Chunk, engine: SimulationEngine) {
     if (chunk.status === "DOWN")
       throw new Error("Une vidéo à l'origine ne peut pas etre DOWN");
@@ -179,6 +192,9 @@ class OriginNode extends NetworkNode {
 
     if (!nextGoal) throw new Error("Il n'y a pas d'historique, erreur");
     const delay = nextGoal.calculateTransmissionDelay(chunk.size);
+
+    // ajouter le nombre d'octet envoyé
+    this.octetSend += chunk.size;
 
     engine.scheduleEvent(delay, "PACKET_ARRIVAL", {
       targetNode: nextGoal,

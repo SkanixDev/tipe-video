@@ -14,7 +14,7 @@ class VideoAsset {
   }
 
   splitFile() {
-    console.log("Spliting du film:", this.title);
+    // console.log("Spliting du film:", this.title);
     let tempSize = this.size;
     let index = 0;
     while (tempSize > 0) {

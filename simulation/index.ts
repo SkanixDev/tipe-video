@@ -4,25 +4,16 @@ import { SimulationEngine } from "./engine.js";
 import { CacheNode, OriginNode, UserNode } from "./graph/graph.js";
 import { Chunk, Stream } from "./graph/packet.js";
 import { Catalog, VideoAsset } from "./graph/video.js";
+import { randomIntBetween } from "./utils/utils.js";
 
 const catalogue = new Catalog();
 
-// On crée 5 films avec des IDs uniques de 1 à 5
-const movie1 = new VideoAsset(1, "Star wars", 321);
-const movie2 = new VideoAsset(2, "Tron 1", 3_170_153_452);
-const movie3 = new VideoAsset(3, "Tron 2", 3_170_153_452);
-const movie4 = new VideoAsset(4, "Tron 3", 3_170_153_452);
-const movie5 = new VideoAsset(5, "Tron 4", 3_170_153_452);
-
-// Ajoutés dans l'ordre strict des rangs de popularité (du plus populaire au moins populaire)
-catalogue.addCatalog(movie1); // Rang 1
-catalogue.addCatalog(movie2); // Rang 2
-catalogue.addCatalog(movie3); // Rang 3
-catalogue.addCatalog(movie4); // Rang 4
-catalogue.addCatalog(movie5); // Rang 5
-
-for (let i = 6; i < 101; i++) {
-  const movie6 = new VideoAsset(i, "Tron 4" + i, 3_170_153_452);
+for (let i = 1; i < 2; i++) {
+  const movie6 = new VideoAsset(
+    i,
+    "Film " + i,
+    randomIntBetween(1_000_000_000, 10_000_000_000),
+  );
   catalogue.addCatalog(movie6);
 }
 catalogue.calculateProbability();
@@ -60,7 +51,7 @@ const fog2 = new CacheNode(
 );
 
 // Création de la simulation
-const simulation = new SimulationEngine(100);
+const simulation = new SimulationEngine(10000);
 simulation.catalog = catalogue;
 simulation.registerFogNode(fog1);
 simulation.registerFogNode(fog2);
@@ -70,3 +61,37 @@ simulation.scheduleEvent(0, "USER_ARRIVAL", {
   lastIndexUser: 0,
 });
 simulation.run();
+
+// AFFICHAGE DES STATISTIQUES
+//
+// Comptage par utilisateur
+
+//
+console.log("------STATS-------");
+console.log("Nombre d'utilisateur:", simulation.userNode.length);
+console.log("Nombre de Fogs:", simulation.fogNodes.length);
+console.log("Cache Hits:", simulation.stats.cacheHits);
+console.log("Cache Miss:", simulation.stats.cacheMiss);
+console.log(
+  "Hit Rate:",
+  (simulation.stats.cacheHits /
+    (simulation.stats.cacheHits + simulation.stats.cacheMiss)) *
+    100,
+);
+console.log("------------------");
+let userDmd = 0;
+for (let i = 0; i < simulation.userNode.length; i++) {
+  const element = simulation.userNode[i];
+  console.log(
+    `[USER_STATS] - ${element.id} à demandé ${element.octetDemand} octets`,
+  );
+  userDmd += element.octetDemand;
+}
+console.log(
+  `[ORIGIN_STATS] - ${originServer.id} à donné ${originServer.octetSend} octets`,
+);
+console.log(
+  "======> Soit un rapport de: ",
+  ((originServer.octetSend / userDmd) * 100).toFixed(4),
+);
+console.log("------------------");
