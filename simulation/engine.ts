@@ -39,7 +39,11 @@ class SimulationEngine {
     data: ScheduleEventDataType,
   ): void {
     const absoluteTime = this.currentTime + delay;
-    console.log("absoluteTime:", absoluteTime);
+    console.log(
+      "absoluteTime:",
+      absoluteTime,
+      `itération: ${this.currentIteration}/${this.iteration}`,
+    );
     const newEvent = new EventTreeNode(absoluteTime, type, data);
 
     this.queue.enqueue(newEvent);
@@ -118,7 +122,14 @@ class SimulationEngine {
     );
 
     // création de la requete
-    const newChunk = new Chunk(0, 0, selectedMovie.id, newUser, "UP");
+    const newChunk = new Chunk(
+      0,
+      0,
+      selectedMovie.id,
+      newUser,
+      this.currentTime,
+      "UP",
+    );
 
     newChunk.history.push(newUser);
 

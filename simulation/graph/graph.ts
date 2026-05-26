@@ -60,6 +60,7 @@ class UserNode extends NetworkNode {
 
     // ajout du nombre d'octet --- STATS
     chunk.from.octetDemand += chunk.size;
+    chunk.endTime = engine.currentTime;
 
     if (!videoCatalog) throw new Error("Vidéo inexistante");
     if (stream.chunks.length >= videoCatalog.chunks.length) {
@@ -74,6 +75,7 @@ class UserNode extends NetworkNode {
         0,
         stream.assetVideo.id,
         chunk.from,
+        engine.currentTime,
       );
       newChunk.history.push(this);
 
@@ -143,20 +145,33 @@ class CacheNode extends NetworkNode {
         } else throw new Error("Video Introuvable, erreur");
       }
     } else {
-      // Ajouter la video au storage
-      if (chunk.size > this.capacity) return; // fichier plus grand que cache on skip
-      while (this.usedCapacity + chunk.size > this.capacity) {
-        const oldestKey = this.storage.keys().next().value;
-        if (!oldestKey) throw new Error("Le stockage est déjà vide");
-        this.usedCapacity -= this.storage.get(oldestKey)?.size!;
-        this.storage.delete(oldestKey);
+      // 1. Définir la clé unique du morceau
+      const cacheKey = `${chunk.videoId.toString()}_${chunk.chunkIndex.toString()}`;
+
+      // 2. Si le morceau est plus grand que le cache, on ignore le stockage
+      if (chunk.size > this.capacity) return;
+
+      // 3. GESTION DU DOUBLON / MISE À JOUR LRU
+      if (this.storage.has(cacheKey)) {
+        this.storage.delete(cacheKey);
+      } else {
+        while (this.usedCapacity + chunk.size > this.capacity) {
+          const oldestKey = this.storage.keys().next().value;
+          if (!oldestKey) break; // Sécurité élégante
+
+          this.usedCapacity -= this.storage.get(oldestKey)?.size!;
+          this.storage.delete(oldestKey);
+        }
+        this.usedCapacity += chunk.size;
       }
+
+      // 4. On applique le stockage
       this.storage.set(
-        `${chunk.videoId.toString()}_${chunk.chunkIndex.toString()}`,
+        cacheKey,
         engine.catalog.getCatalogById(chunk.videoId)?.chunks[chunk.chunkIndex]!,
       );
-      this.usedCapacity += chunk.size;
 
+      // 5. on route vers le bas
       const nextGoal = chunk.history.pop();
 
       if (!nextGoal) throw new Error("Il n'y a pas d'historique, erreur");

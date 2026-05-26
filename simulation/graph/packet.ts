@@ -22,6 +22,9 @@ class Stream {
 class Chunk {
   chunkIndex: number;
 
+  creationTime: number;
+  endTime: number | undefined;
+
   from: UserNode;
   status: ChunkStatus;
   size: number; // nombre d'octets
@@ -33,6 +36,7 @@ class Chunk {
     size: number,
     videoId: number,
     from: UserNode,
+    creationTime: number,
     status?: ChunkStatus,
   ) {
     this.chunkIndex = id;
@@ -40,6 +44,7 @@ class Chunk {
     this.status = status ? status : "UP";
     this.videoId = videoId;
     this.from = from;
+    this.creationTime = creationTime;
   }
 
   setStatus(status: ChunkStatus) {

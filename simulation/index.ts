@@ -8,14 +8,16 @@ import { randomIntBetween } from "./utils/utils.js";
 
 const catalogue = new Catalog();
 
-for (let i = 1; i < 2; i++) {
-  const movie6 = new VideoAsset(
+// On crée 100 films (pour la loi de Zipf)
+for (let i = 1; i <= 100; i++) {
+  const movie = new VideoAsset(
     i,
     "Film " + i,
-    randomIntBetween(1_000_000_000, 10_000_000_000),
+    randomIntBetween(20_000_000, 100_000_000), // Des films de 20 Mo à 100 Mo (Loi de similitude)
   );
-  catalogue.addCatalog(movie6);
+  catalogue.addCatalog(movie);
 }
+
 catalogue.calculateProbability();
 
 const testCount = new Array(catalogue.catalog.length).fill(0);
@@ -30,7 +32,7 @@ const originServer = new OriginNode("ORIGIN_1", "ORIGIN");
 const cdn1 = new CacheNode(
   "CDN_1",
   "CDN",
-  10_000_000_000,
+  900_000_000,
   { latencyToParent: 50, bandwidthToParent: 125_000 },
   originServer,
 );
@@ -38,20 +40,20 @@ const cdn1 = new CacheNode(
 const fog1 = new CacheNode(
   "FOG_1",
   "FOG",
-  1_000_000_000,
+  150_000_000,
   { latencyToParent: 15, bandwidthToParent: 12_500 },
   cdn1,
 );
 const fog2 = new CacheNode(
   "FOG_2",
   "FOG",
-  1_000_000_000,
+  150_000_000,
   { latencyToParent: 15, bandwidthToParent: 12_500 },
   cdn1,
 );
 
 // Création de la simulation
-const simulation = new SimulationEngine(10000);
+const simulation = new SimulationEngine(100000);
 simulation.catalog = catalogue;
 simulation.registerFogNode(fog1);
 simulation.registerFogNode(fog2);
@@ -85,6 +87,14 @@ for (let i = 0; i < simulation.userNode.length; i++) {
   console.log(
     `[USER_STATS] - ${element.id} à demandé ${element.octetDemand} octets`,
   );
+  for (let x = 0; x < element.activeStream.length; x++) {
+    const e = element.activeStream[x];
+    console.log(`
+    [LATENCY_VIDEO_CHUNK] - ${e.assetVideo.id} à eu ${e.chunks.length} chunks sur ${simulation.catalog.getCatalogById(e.assetVideo.id)?.chunks.length} `);
+    console.log(
+      `[LATENCY_VIDEO_CHUNK] - Latence totale: ${e.chunks.reduce((acc, currentValue) => acc + (currentValue.endTime! - currentValue.creationTime), 0)}`,
+    );
+  }
   userDmd += element.octetDemand;
 }
 console.log(
