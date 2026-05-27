@@ -2,7 +2,6 @@
 
 import { SimulationEngine } from "./engine.js";
 import { CacheNode, OriginNode, UserNode } from "./graph/graph.js";
-import { Chunk, Stream } from "./graph/packet.js";
 import { Catalog, VideoAsset } from "./graph/video.js";
 import { randomIntBetween } from "./utils/utils.js";
 
@@ -53,7 +52,7 @@ const fog2 = new CacheNode(
 );
 
 // Création de la simulation
-const simulation = new SimulationEngine(1_000);
+const simulation = new SimulationEngine(100_000);
 simulation.catalog = catalogue;
 simulation.registerFogNode(fog1);
 simulation.registerFogNode(fog2);
@@ -68,7 +67,6 @@ simulation.run();
 // AFFICHAGE DES STATISTIQUES
 //
 // Comptage par utilisateur
-
 //
 console.log("------STATS-------");
 console.log("Nombre d'utilisateur:", simulation.userNode.length);

@@ -93,6 +93,7 @@ class CacheNode extends NetworkNode {
   capacity: number;
   usedCapacity: number = 0;
   storage: Map<string, VideoChunk> = new Map(); // videoId_chunkIndex
+  private inFlightRequest = new Set<string>(); // videoId_chunkIndex
 
   constructor(
     id: string,
@@ -266,6 +267,7 @@ class CacheNode extends NetworkNode {
         cacheKey,
         engine.catalog.getCatalogById(chunk.videoId)?.chunks[chunk.chunkIndex]!,
       );
+      this.inFlightRequest.delete(`${chunk.videoId}_${chunk.chunkIndex}`);
       console.log("Réception du prefetching prêt");
     }
   }
@@ -278,6 +280,10 @@ class CacheNode extends NetworkNode {
         ?.chunks[chunk.chunkIndex + index];
       if (!checkChunkExist) continue;
       if (this.storage.has(keyMap)) continue;
+      if (
+        this.inFlightRequest.has(`${chunk.videoId}_${chunk.chunkIndex + index}`)
+      )
+        continue; // si la requete est déjà en cours
 
       const newPrefetchChunk = new PreChunk(
         chunk.chunkIndex + index, // video actuelle + N
@@ -294,6 +300,7 @@ class CacheNode extends NetworkNode {
         targetNode: this.parent!,
         packet: newPrefetchChunk,
       });
+      this.inFlightRequest.add(`${chunk.videoId}_${chunk.chunkIndex + index}`);
     }
   }
 }
