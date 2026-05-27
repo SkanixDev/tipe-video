@@ -10,8 +10,9 @@ import {
 
 class SimulationEngine {
   currentTime: number = 0;
-  private queue = new PriorityQueue();
   catalog: Catalog = new Catalog();
+  techChoice: "LRU" | "Prefetching" = "Prefetching";
+  private queue = new PriorityQueue();
   private lambdaArrivalUser = 0.01;
 
   // construction du graph
@@ -82,6 +83,13 @@ class SimulationEngine {
       }
       case "USER_ARRIVAL":
         this.privateEnterNewUser(event.data);
+        break;
+      case "PACKET_PREFETCH":
+        const { targetNode, packet, wanted } = event.data;
+        console.log(
+          `\x1b[32m [HORLOGE: ${this.currentTime}ms] Prefetching actif`,
+        );
+        targetNode.handlePrefetchChunk(packet, this);
         break;
       default:
         break;

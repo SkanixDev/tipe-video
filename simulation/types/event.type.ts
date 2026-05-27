@@ -1,11 +1,12 @@
 import { NetworkNode } from "../graph/graph.js";
-import { Chunk } from "../graph/packet.js";
+import { Chunk, PreChunk } from "../graph/packet.js";
 
 export type EventType =
   | "USER_REQUEST_GENERATED"
   | "PACKET_ARRIVAL"
   | "VIDEO_DELIVERED"
-  | "USER_ARRIVAL";
+  | "USER_ARRIVAL"
+  | "PACKET_PREFETCH";
 
 export type NetworkNodeType = "USER" | "FOG" | "CDN" | "ORIGIN";
 
@@ -23,7 +24,7 @@ export type StatusAsset = "START" | "STREAM" | "END";
 export type ScheduleEventDataType =
   | {
       targetNode: NetworkNode;
-      packet: Chunk;
+      packet: Chunk | PreChunk;
     }
   | { lastIndexUser: number };
 

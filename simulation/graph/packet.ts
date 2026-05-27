@@ -1,5 +1,5 @@
 import { ChunkStatus, StatusAsset } from "../types/event.type.js";
-import { NetworkNode, UserNode } from "./graph.js";
+import { CacheNode, NetworkNode, UserNode } from "./graph.js";
 import { VideoAsset, VideoChunk } from "./video.js";
 
 class Stream {
@@ -19,13 +19,11 @@ class Stream {
   }
 }
 
-class Chunk {
+class AtomeChunk {
   chunkIndex: number;
-
   creationTime: number;
   endTime: number | undefined;
 
-  from: UserNode;
   status: ChunkStatus;
   size: number; // nombre d'octets
   videoId: number;
@@ -35,7 +33,6 @@ class Chunk {
     id: number,
     size: number,
     videoId: number,
-    from: UserNode,
     creationTime: number,
     status?: ChunkStatus,
   ) {
@@ -43,7 +40,6 @@ class Chunk {
     this.size = size;
     this.status = status ? status : "UP";
     this.videoId = videoId;
-    this.from = from;
     this.creationTime = creationTime;
   }
 
@@ -52,4 +48,36 @@ class Chunk {
   }
 }
 
-export { Chunk, Stream };
+class Chunk extends AtomeChunk {
+  from: UserNode;
+
+  constructor(
+    id: number,
+    size: number,
+    videoId: number,
+    from: UserNode,
+    creationTime: number,
+    status?: ChunkStatus,
+  ) {
+    super(id, size, videoId, creationTime, status);
+    this.from = from;
+  }
+}
+
+class PreChunk extends AtomeChunk {
+  from: CacheNode;
+
+  constructor(
+    id: number,
+    size: number,
+    videoId: number,
+    from: CacheNode,
+    creationTime: number,
+    status?: ChunkStatus,
+  ) {
+    super(id, size, videoId, creationTime, status);
+    this.from = from;
+  }
+}
+
+export { Chunk, PreChunk, Stream };

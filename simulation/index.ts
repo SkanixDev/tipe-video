@@ -53,10 +53,11 @@ const fog2 = new CacheNode(
 );
 
 // Création de la simulation
-const simulation = new SimulationEngine(100000);
+const simulation = new SimulationEngine(1_000);
 simulation.catalog = catalogue;
 simulation.registerFogNode(fog1);
 simulation.registerFogNode(fog2);
+simulation.techChoice = "Prefetching";
 
 // Lancement du premier packet USER ARRIVAL
 simulation.scheduleEvent(0, "USER_ARRIVAL", {
