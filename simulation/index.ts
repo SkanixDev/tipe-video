@@ -5,6 +5,10 @@ import { CacheNode, OriginNode, UserNode } from "./graph/graph.js";
 import { Catalog, VideoAsset } from "./graph/video.js";
 import { randomIntBetween } from "./utils/utils.js";
 
+// random
+import seedrandom from "seedrandom";
+
+seedrandom("random1", { global: true });
 const catalogue = new Catalog();
 
 // On crée 100 films (pour la loi de Zipf)
@@ -52,7 +56,7 @@ const fog2 = new CacheNode(
 );
 
 // Création de la simulation
-const simulation = new SimulationEngine(100_000);
+const simulation = new SimulationEngine(1_000);
 simulation.catalog = catalogue;
 simulation.registerFogNode(fog1);
 simulation.registerFogNode(fog2);
