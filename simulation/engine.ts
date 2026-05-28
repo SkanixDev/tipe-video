@@ -105,6 +105,7 @@ class SimulationEngine {
       `USER_${data.lastIndexUser + 1}`,
       "USER",
       attachedFog,
+      { bandwidthToParent: 50_000, latencyToParent: 2 },
     );
     // register de l'utilisateur
     this.userNode.push(newUser);

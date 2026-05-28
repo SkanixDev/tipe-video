@@ -10,9 +10,10 @@ seedrandom("generationFilm", { global: true });
 const capacitiesFog = [
   50_000_000, 100_000_000, 150_000_000, 300_000_000, 500_000_000,
 ];
+const lambdaVariation = [0.1, 0.5, 0.7, 1, 2, 5];
 const technologies: ("LRU" | "Prefetching")[] = ["LRU", "Prefetching"];
-const topologies = [1, 2, 3, 4, 5, 6, 8] as number[];
-const ITERATIONS_FIXES = 1_000_000;
+const topologies = Array.from({ length: 50 }, (_, index) => index + 1); // [1, 2, 3, ..., 50]
+const BEST_ITERATION = 1_000_000;
 const iterations = [100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000];
 const exportfile = "export_data.csv";
 
@@ -35,12 +36,15 @@ function campagne(
   bande_passante: number,
   catalog: Catalog,
   iteration: number,
+  lambda: number,
   seed: string,
 ) {
   seedrandom(seed, { global: true });
   // Initilisation de la simualtion
   const simulation = new SimulationEngine(iteration);
   simulation.techChoice = technologie;
+  catalog.zipf_parameter = lambda;
+  catalog.calculateProbability();
   simulation.catalog = catalog;
 
   // Construction de l'architecture
@@ -144,54 +148,63 @@ function campagne(
   if (!fs.existsSync(exportfile)) {
     fs.writeFileSync(
       exportfile,
-      "Technologie,itération,Capacité,Nombre de Fogs, Hit rate, Ratio OriginUser,Latence_P50,Latence_P90,Latence_P99\n",
+      "Technologie,itération,Capacité,zipf_parameter,Nombre de Fogs, Hit rate, Ratio OriginUser,Latence_P50,Latence_P90,Latence_P99\n",
     );
   }
 
   fs.appendFileSync(
     exportfile,
-    `${technologie},${iteration},${capacite_fog},${nombre_fogs},${hitRate},${ratioOfOriginAndUser},${allLatencies[p50]},${allLatencies[p90]},${allLatencies[p99]}\n`,
+    `${technologie},${iteration},${capacite_fog},${lambda},${nombre_fogs},${hitRate},${ratioOfOriginAndUser},${allLatencies[p50]},${allLatencies[p90]},${allLatencies[p99]}\n`,
   );
 }
 
-// function main() {
-//   for (const ite of iterations) {
-//     for (const tech of technologies) {
-//       for (const topo of topologies) {
-//         for (const capacity of capacitiesFog) {
-//           for (let i = 0; i < 6; i++) {
-//             campagne(
-//               tech,
-//               capacity,
-//               topo,
-//               15,
-//               12_500,
-//               catalogue,
-//               ite,
-//               "random" + i,
-//             );
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-//
 function main() {
-  for (const ite of iterations) {
-    for (let i = 0; i < 6; i++) {
-      campagne(
-        "Prefetching",
-        150_000_000,
-        2,
-        15,
-        12_500,
-        catalogue,
-        ite,
-        "random" + ite + i,
-      );
+  for (const lambda of lambdaVariation) {
+    for (const tech of technologies) {
+      for (const topo of topologies) {
+        for (const capacity of capacitiesFog) {
+          for (let i = 0; i < 5; i++) {
+            console.log("PARAMETRE SIMULATION");
+            console.log(
+              `Lambda: ${lambda} , Tech: ${tech}, Topologie: ${topo}, Capacity: ${capacity}, Itération Multiple: ${i}`,
+            );
+            campagne(
+              tech,
+              capacity,
+              topo,
+              15,
+              12_500,
+              catalogue,
+              BEST_ITERATION,
+              lambda,
+              "random" + i,
+            );
+          }
+        }
+      }
     }
   }
 }
+
+// =====================================
+// TEST DU MEILLEURS NOMBRE D'ITERAITON
+// =====================================
+
+// function main() {
+//   for (const ite of iterations) {
+//     for (let i = 0; i < 6; i++) {
+//       campagne(
+//         "Prefetching",
+//         150_000_000,
+//         2,
+//         15,
+//         12_500,
+//         catalogue,
+//         ite,
+//         "random" + ite + i,
+//       );
+//     }
+//   }
+// }
 
 main();
