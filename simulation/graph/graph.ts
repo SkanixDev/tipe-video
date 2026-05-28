@@ -65,7 +65,7 @@ class UserNode extends NetworkNode {
     if (!videoCatalog) throw new Error("Vidéo inexistante");
     if (stream.chunks.length >= videoCatalog.chunks.length) {
       stream.status = "END";
-      console.log("END ATTEINT");
+      // console.log("END ATTEINT");
     } else {
       stream.nextChunkIndex++;
 
@@ -268,7 +268,7 @@ class CacheNode extends NetworkNode {
         engine.catalog.getCatalogById(chunk.videoId)?.chunks[chunk.chunkIndex]!,
       );
       this.inFlightRequest.delete(`${chunk.videoId}_${chunk.chunkIndex}`);
-      console.log("Réception du prefetching prêt");
+      // console.log("Réception du prefetching prêt");
     }
   }
 

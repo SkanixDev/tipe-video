@@ -56,7 +56,7 @@ const fog2 = new CacheNode(
 );
 
 // Création de la simulation
-const simulation = new SimulationEngine(1_000);
+const simulation = new SimulationEngine(10_000_000);
 simulation.catalog = catalogue;
 simulation.registerFogNode(fog1);
 simulation.registerFogNode(fog2);

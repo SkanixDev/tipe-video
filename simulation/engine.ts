@@ -40,11 +40,11 @@ class SimulationEngine {
     data: ScheduleEventDataType,
   ): void {
     const absoluteTime = this.currentTime + delay;
-    console.log(
-      "absoluteTime:",
-      absoluteTime,
-      `itération: ${this.currentIteration}/${this.iteration}`,
-    );
+    // console.log(
+    //   "absoluteTime:",
+    //   absoluteTime,
+    //   `itération: ${this.currentIteration}/${this.iteration}`,
+    // );
     const newEvent = new EventTreeNode(absoluteTime, type, data);
 
     this.queue.enqueue(newEvent);
@@ -73,9 +73,9 @@ class SimulationEngine {
   processEvent(event: EventTreeNode) {
     switch (event.type) {
       case "PACKET_ARRIVAL": {
-        console.log(
-          `[HORLOGE: ${this.currentTime}ms] Traitement de l'événement: ${event.type} pour le nœud: ${event.data.targetNode.id}`,
-        );
+        // console.log(
+        //   `[HORLOGE: ${this.currentTime}ms] Traitement de l'événement: ${event.type} pour le nœud: ${event.data.targetNode.id}`,
+        // );
         const { targetNode, packet } = event.data;
 
         targetNode.handleChunk(packet, this);
@@ -86,9 +86,9 @@ class SimulationEngine {
         break;
       case "PACKET_PREFETCH":
         const { targetNode, packet, wanted } = event.data;
-        console.log(
-          `\x1b[32m [HORLOGE: ${this.currentTime}ms] Prefetching actif`,
-        );
+        // console.log(
+        //   `\x1b[32m [HORLOGE: ${this.currentTime}ms] Prefetching actif`,
+        // );
         targetNode.handlePrefetchChunk(packet, this);
         break;
       default:
@@ -124,10 +124,10 @@ class SimulationEngine {
     );
     newUser.activeStream.push(stream);
 
-    console.info(
-      `\x1b[33m[t=${this.currentTime}ms] Nouvel utilisateur ${newUser.id} connecté au Fog ${attachedFog.id} pour voir : ${selectedMovie?.title}`,
-      `Déclanché par: USER_${data.lastIndexUser}`,
-    );
+    // console.info(
+    //   `\x1b[33m[t=${this.currentTime}ms] Nouvel utilisateur ${newUser.id} connecté au Fog ${attachedFog.id} pour voir : ${selectedMovie?.title}`,
+    //   `Déclanché par: USER_${data.lastIndexUser}`,
+    // );
 
     // création de la requete
     const newChunk = new Chunk(
