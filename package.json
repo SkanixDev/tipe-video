@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "tsc -p tsconfig.json && node ./dist/simulation/automation.js",
+    "multi": "tsc -p tsconfig.json && node ./dist/simulation/multi_thread.js",
     "build": "tsc -p tsconfig.json",
     "start": "tsc -p tsconfig.json && node ./dist/simulation/index.js"
   },
