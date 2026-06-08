@@ -1,5 +1,5 @@
-import { NetworkNode } from "../graph/graph.js";
-import { Chunk, PreChunk } from "../graph/packet.js";
+import { NetworkNode } from "../graph/graph.ts";
+import { Chunk, PreChunk } from "../graph/packet.ts";
 
 export type EventType = "PACKET_ARRIVAL" | "USER_ARRIVAL" | "PACKET_PREFETCH";
 

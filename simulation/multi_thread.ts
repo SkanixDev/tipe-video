@@ -7,10 +7,6 @@ import { randomIntBetween } from "./utils/utils.js";
 import { CacheNode, OriginNode } from "./graph/graph.js";
 import { SimulationEngine } from "./engine.js";
 
-// ==========================================
-// CODE COMMUN (Exécuté par le Master ET les Workers)
-// ==========================================
-
 seedrandom("generationFilm", { global: true });
 
 const capacitiesFog = [
@@ -22,7 +18,6 @@ const topologies = Array.from({ length: 50 }, (_, index) => index + 1); // [1, 2
 const BEST_ITERATION = 1_000_000;
 const exportfile = "export_data.csv";
 
-// Initialisation du catalogue (Chaque thread aura sa propre copie isolée en RAM)
 const catalogue = new Catalog();
 for (let i = 1; i <= 100; i++) {
   const movie = new VideoAsset(
@@ -115,17 +110,12 @@ function campagne(
       ? (originServer.octetSend / totalOctetRequestByAllUser) * 100
       : 0;
 
-  // On retourne la ligne brute formatée plutôt que d'écrire directement dans le fichier
   return `${technologie},${iteration},${capacite_fog},${lambda},${nombre_fogs},${hitRate},${ratioOfOriginAndUser},${allLatencies[p50]},${allLatencies[p90]},${allLatencies[p99]}\n`;
 }
 
-// ==========================================
-// LOGIQUE DU THREAD PRINCIPAL (Master)
-// ==========================================
 if (isMainThread) {
-  console.log("=== POOL DE MULTI-THREADING INITIALISÉ ===");
+  console.log("=== MULTI-THREADING ===");
 
-  // Écriture de l'en-tête du fichier de données s'il n'existe pas
   if (!fs.existsSync(exportfile)) {
     fs.writeFileSync(
       exportfile,
@@ -133,7 +123,7 @@ if (isMainThread) {
     );
   }
 
-  // 1. Génération de la liste plate de toutes les tâches à accomplir
+  // calcul de toutes les tâches à faire
   const tasks: any[] = [];
   for (const lambda of lambdaVariation) {
     for (const tech of technologies) {
@@ -150,7 +140,6 @@ if (isMainThread) {
   const totalTasks = tasks.length;
   console.log(`Nombre total de simulations planifiées : ${totalTasks}`);
 
-  // Détection automatique du nombre de cœurs logiques disponibles sur ta machine
   const numCPUs = os.availableParallelism();
   console.log(`Détection du processeur : ${numCPUs} cœurs disponibles.`);
 
@@ -193,25 +182,22 @@ if (isMainThread) {
     });
 
     worker.on("error", (err) => {
-      console.error(`\nErreur critique sur un Worker :`, err);
+      console.error(`Erreur sur un Worker :`, err);
       activeWorkers--;
       launchNextWorker();
     });
   };
 
-  // Lancement initial de la grappe de Workers (un par cœur disponible)
   console.log(`Déploiement initial des Workers...`);
   for (let i = 0; i < Math.min(numCPUs, totalTasks); i++) {
     launchNextWorker();
   }
 }
-// ==========================================
-// LOGIQUE DES THREADS ENFANTS (Workers)
-// ==========================================
+
+// si ce n'est pas le worker principal
 else {
   const task = workerData;
 
-  // Exécution isolée de la simulation
   const resultLine = campagne(
     task.tech,
     task.capacity,
@@ -224,6 +210,6 @@ else {
     "random" + task.i,
   );
 
-  // Renvoi de la chaîne CSV au thread principal
+  // renvoie le msg au thread principal
   parentPort?.postMessage(resultLine);
 }

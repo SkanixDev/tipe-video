@@ -6,7 +6,7 @@ import {
   EventType,
   ScheduleEventDataType,
   StatsSimulationEngine,
-} from "./types/event.type.js";
+} from "./types/types.js";
 
 class SimulationEngine {
   currentTime: number = 0;

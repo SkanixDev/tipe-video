@@ -1,9 +1,5 @@
 import { SimulationEngine } from "../engine.js";
-import {
-  ConfigNodeType,
-  NetworkNodeType,
-  PacketType,
-} from "../types/event.type.js";
+import { ConfigNodeType, NetworkNodeType, PacketType } from "../types/types.js";
 import { Chunk, PreChunk, Stream } from "./packet.js";
 import { VideoChunk } from "./video.js";
 

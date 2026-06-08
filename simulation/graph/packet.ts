@@ -1,4 +1,4 @@
-import { ChunkStatus, StatusAsset } from "../types/event.type.js";
+import { ChunkStatus, StatusAsset } from "../types/types.js";
 import { CacheNode, NetworkNode, UserNode } from "./graph.js";
 import { VideoAsset, VideoChunk } from "./video.js";
 

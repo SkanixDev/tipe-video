@@ -1,4 +1,4 @@
-import { EventType } from "./types/event.type.js";
+import { EventType } from "./types/types.js";
 
 // Définition d'un noeud
 class EventTreeNode {
