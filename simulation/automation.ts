@@ -159,14 +159,14 @@ function campagne(
 }
 
 function main() {
-  for (const lambda of lambdaVariation) {
+  for (const zipf_parameter of lambdaVariation) {
     for (const tech of technologies) {
       for (const topo of topologies) {
         for (const capacity of capacitiesFog) {
           for (let i = 0; i < 5; i++) {
             console.log("PARAMETRE SIMULATION");
             console.log(
-              `Lambda: ${lambda} , Tech: ${tech}, Topologie: ${topo}, Capacity: ${capacity}, Itération Multiple: ${i}`,
+              `Lambda: ${zipf_parameter} , Tech: ${tech}, Topologie: ${topo}, Capacity: ${capacity}, Itération Multiple: ${i}`,
             );
             campagne(
               tech,
@@ -176,7 +176,7 @@ function main() {
               12_500,
               catalogue,
               BEST_ITERATION,
-              lambda,
+              zipf_parameter,
               "random" + i,
             );
           }

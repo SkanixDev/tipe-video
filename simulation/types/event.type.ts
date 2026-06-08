@@ -1,12 +1,7 @@
 import { NetworkNode } from "../graph/graph.js";
 import { Chunk, PreChunk } from "../graph/packet.js";
 
-export type EventType =
-  | "USER_REQUEST_GENERATED"
-  | "PACKET_ARRIVAL"
-  | "VIDEO_DELIVERED"
-  | "USER_ARRIVAL"
-  | "PACKET_PREFETCH";
+export type EventType = "PACKET_ARRIVAL" | "USER_ARRIVAL" | "PACKET_PREFETCH";
 
 export type NetworkNodeType = "USER" | "FOG" | "CDN" | "ORIGIN";
 

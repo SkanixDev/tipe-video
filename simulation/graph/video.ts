@@ -57,6 +57,8 @@ class Catalog {
   }
 
   calculateProbability() {
+    this.probability = []; // vider à chaque nouveau calcul
+
     const h = this.calculateNormalization();
     let beforeValue = 0;
     for (let i = 1; i <= this.catalog.length; i++) {
